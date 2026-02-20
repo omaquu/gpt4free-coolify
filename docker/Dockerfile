@@ -28,13 +28,11 @@ RUN apt-get -qqy update && \
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
 # Create and fix permissions for the virtual environment
-# Explicitly use python3.12 to create the venv
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3.12 -m venv $VIRTUAL_ENV
 RUN chown -R $SEL_UID:$SEL_GID $VIRTUAL_ENV
 
 # Upgrade pip and install spaCy, supervisor, AND websockify/numpy
-# We install websockify here so the 'novnc' service can find it when it runs via the venv python
 RUN $VIRTUAL_ENV/bin/pip install --upgrade pip && \
     $VIRTUAL_ENV/bin/pip install --no-cache-dir spacy supervisor websockify numpy
 
@@ -63,6 +61,14 @@ WORKDIR $G4F_DIR
 
 # Copy the project's requirements file into the container.
 COPY requirements.txt $G4F_DIR
+
+# --- FIX PERMISSIONS BEFORE INSTALL ---
+# Switch to root to fix ownership issues in the venv/cache
+USER root
+RUN chown -R $SEL_UID:$SEL_GID /opt/venv /home/seluser/.cache/pip
+# Switch back to seluser to run the install
+USER $SEL_UID
+# ----------------------------------
 
 # Upgrade pip for the latest features and install the project's Python dependencies.
 RUN pip install --break-system-packages --upgrade pip && \
