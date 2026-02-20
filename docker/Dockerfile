@@ -18,15 +18,11 @@ RUN if [ "$G4F_VERSION" = "" ]; then \
     apt-get -qqy install git; \
 fi
 
-# Install Python 3.12, build tools, remove OpenJDK 11, clean up
-# We use python3.12 EXPLICITLY to avoid the broken python3.14
+# Install Python 3.12 and build tools
+# We DO NOT run 'upgrade' or 'autoremove' to prevent breaking the base Selenium image (VNC/Chrome)
 RUN apt-get -qqy update && \
-    apt-get -qqy upgrade && \
-    apt-get -qyy autoremove && \
-    # EXPLICITLY INSTALL PYTHON 3.12 PACKAGES
+    # Explicitly install python3.12 packages
     apt-get -qqy install python3.12 python3.12-dev python3.12-venv build-essential g++ && \
-    apt-get -qyy remove openjdk-11-jre-headless && \
-    apt-get -qyy autoremove && \
     apt-get -qyy clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
     # Force the system to use python3.12 when you type 'python3'
