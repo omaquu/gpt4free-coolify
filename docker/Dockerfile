@@ -23,24 +23,24 @@ fi
 RUN apt-get -qqy update && \
     apt-get -qqy upgrade && \
     apt-get -qyy autoremove && \
-    # CHANGED: Explicitly install python3.12 packages
+    # EXPLICITLY INSTALL PYTHON 3.12 PACKAGES
     apt-get -qqy install python3.12 python3.12-dev python3.12-venv build-essential g++ && \
     apt-get -qyy remove openjdk-11-jre-headless && \
     apt-get -qyy autoremove && \
     apt-get -qyy clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
-    # CHANGED: Force the system to use python3.12 when you type 'python3'
+    # Force the system to use python3.12 when you type 'python3'
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
 # Create and fix permissions for the virtual environment
-# CHANGED: Explicitly use python3.12 to create the venv (ignores symlinks)
+# Explicitly use python3.12 to create the venv
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3.12 -m venv $VIRTUAL_ENV
 RUN chown -R $SEL_UID:$SEL_GID $VIRTUAL_ENV
 
-# Upgrade pip and install spaCy in the virtual environment
+# Upgrade pip and install spaCy AND SUPERVISOR in the virtual environment
 RUN $VIRTUAL_ENV/bin/pip install --upgrade pip && \
-    $VIRTUAL_ENV/bin/pip install --no-cache-dir spacy 
+    $VIRTUAL_ENV/bin/pip install --no-cache-dir spacy supervisor
 
 # Install the spaCy model directly
 RUN $VIRTUAL_ENV/bin/python -m spacy download en_core_web_sm
