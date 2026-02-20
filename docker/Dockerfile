@@ -19,7 +19,6 @@ RUN if [ "$G4F_VERSION" = "" ]; then \
 fi
 
 # Install Python 3.12 and build tools
-# We DO NOT run 'upgrade' or 'autoremove' to prevent breaking the base Selenium image (VNC/Chrome)
 RUN apt-get -qqy update && \
     # Explicitly install python3.12 packages
     apt-get -qqy install python3.12 python3.12-dev python3.12-venv build-essential g++ && \
@@ -34,9 +33,10 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3.12 -m venv $VIRTUAL_ENV
 RUN chown -R $SEL_UID:$SEL_GID $VIRTUAL_ENV
 
-# Upgrade pip and install spaCy AND SUPERVISOR in the virtual environment
+# Upgrade pip and install spaCy, supervisor, AND websockify/numpy
+# We install websockify here so the 'novnc' service can find it when it runs via the venv python
 RUN $VIRTUAL_ENV/bin/pip install --upgrade pip && \
-    $VIRTUAL_ENV/bin/pip install --no-cache-dir spacy supervisor
+    $VIRTUAL_ENV/bin/pip install --no-cache-dir spacy supervisor websockify numpy
 
 # Install the spaCy model directly
 RUN $VIRTUAL_ENV/bin/python -m spacy download en_core_web_sm
