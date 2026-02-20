@@ -18,19 +18,24 @@ RUN if [ "$G4F_VERSION" = "" ]; then \
     apt-get -qqy install git; \
 fi
 
-# Install Python3, pip, remove OpenJDK 11, clean up
+# Install Python 3.12, build tools, remove OpenJDK 11, clean up
+# We explicitly install python3.12 to avoid the incompatible python3.14
 RUN apt-get -qqy update && \
     apt-get -qqy upgrade && \
     apt-get -qyy autoremove && \
-   apt-get -qqy install python3 python3-pip python3-venv build-essential g++ python3-dev && \
+    # EXPLICITLY INSTALL PYTHON 3.12 PACKAGES
+    apt-get -qqy install python3.12 python3.12-dev python3.12-venv build-essential g++ && \
     apt-get -qyy remove openjdk-11-jre-headless && \
     apt-get -qyy autoremove && \
     apt-get -qyy clean && \
-    rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
+    # Set python3 command to point to python3.12 by default
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
 # Create and fix permissions for the virtual environment
+# We explicitly use python3.12 to ensure the venv is created with the correct version
 ENV VIRTUAL_ENV=/opt/venv
-RUN python3 -m venv $VIRTUAL_ENV
+RUN python3.12 -m venv $VIRTUAL_ENV
 RUN chown -R $SEL_UID:$SEL_GID $VIRTUAL_ENV
 
 # Upgrade pip and install spaCy in the virtual environment
