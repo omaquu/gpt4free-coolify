@@ -19,21 +19,21 @@ RUN if [ "$G4F_VERSION" = "" ]; then \
 fi
 
 # Install Python 3.12, build tools, remove OpenJDK 11, clean up
-# We explicitly install python3.12 to avoid the incompatible python3.14
+# We use python3.12 EXPLICITLY to avoid the broken python3.14
 RUN apt-get -qqy update && \
     apt-get -qqy upgrade && \
     apt-get -qyy autoremove && \
-    # EXPLICITLY INSTALL PYTHON 3.12 PACKAGES
+    # CHANGED: Explicitly install python3.12 packages
     apt-get -qqy install python3.12 python3.12-dev python3.12-venv build-essential g++ && \
     apt-get -qyy remove openjdk-11-jre-headless && \
     apt-get -qyy autoremove && \
     apt-get -qyy clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/* && \
-    # Set python3 command to point to python3.12 by default
+    # CHANGED: Force the system to use python3.12 when you type 'python3'
     update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
 
 # Create and fix permissions for the virtual environment
-# We explicitly use python3.12 to ensure the venv is created with the correct version
+# CHANGED: Explicitly use python3.12 to create the venv (ignores symlinks)
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3.12 -m venv $VIRTUAL_ENV
 RUN chown -R $SEL_UID:$SEL_GID $VIRTUAL_ENV
