@@ -59,6 +59,9 @@ USER $SEL_UID
 # Set the working directory in the container.
 WORKDIR $G4F_DIR
 
+# Ensure a2wsgi is installed as requested by the g4f error
+RUN $VIRTUAL_ENV/bin/pip install a2wsgi
+
 # Copy the project's requirements file into the container.
 COPY requirements.txt $G4F_DIR
 
