@@ -1,4 +1,4 @@
-FROM selenium/node-chrome
+FROM selenium/node-chrome:4.25.0-20240922
 
 ARG G4F_VERSION
 ENV G4F_VERSION=$G4F_VERSION
