@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-python -m g4f api --debug --reload
+G4F_PORT=8080 python -m g4f.api.run --debug
